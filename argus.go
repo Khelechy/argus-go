@@ -1,10 +1,11 @@
 package argus
 
 import (
-	"encoding/json"
 	"fmt"
 	"net"
-	"time"
+
+	"github.com/khelechy/argus/models"
+	"github.com/khelechy/argus/utils"
 )
 
 type Argus struct {
@@ -12,17 +13,11 @@ type Argus struct {
 	Password string
 	Host     string
 	Port     string
-	Events   chan Event
+	Events   chan models.Event
 	Messages chan string
 	Errors   chan error
 }
 
-type Event struct {
-	Action            string
-	ActionDescription string
-	Name              string
-	Timestamp         time.Time
-}
 
 func Connect(argusConfig *Argus) (*Argus, error) {
 
@@ -48,7 +43,7 @@ func Connect(argusConfig *Argus) (*Argus, error) {
 
 	sendAuthData(conn, connectionString)
 
-	argus.Events = make(chan Event)
+	argus.Events = make(chan models.Event)
 	argus.Errors = make(chan error)
 	argus.Messages = make(chan string)
 
@@ -70,7 +65,7 @@ func Connect(argusConfig *Argus) (*Argus, error) {
 
 			if len(data) > 0 {
 
-				isJson, event, str := isJsonString(data)
+				isJson, event, str := utils.IsJsonString(data)
 
 				if isJson {
 					// Push event to event channel
@@ -90,13 +85,4 @@ func Connect(argusConfig *Argus) (*Argus, error) {
 func sendAuthData(conn net.Conn, connectionString string) {
 	data := []byte(connectionString)
 	_, _ = conn.Write(data)
-}
-
-func isJsonString(str string) (bool, Event, string) {
-	var event Event
-	if json.Unmarshal([]byte(str), &event) == nil {
-		return true, event, str
-	}
-
-	return false, event, str
 }
