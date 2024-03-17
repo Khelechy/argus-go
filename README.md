@@ -7,7 +7,7 @@ This is the official go library for the [ARGUS Engine](https://github.com/Khelec
 Ensure you have golang +v1.19 installed. 
 
 ```sh
-    go get github.com/khelechy/argus
+    go get github.com/khelechy/argus-go
 ```
 
 ### Import the package in your code
@@ -15,7 +15,7 @@ Ensure you have golang +v1.19 installed.
 ```go
     import (
         ...
-        "github.com/khelechy/argus"
+        "github.com/khelechy/argus-go"
         ...
     )
 ```
