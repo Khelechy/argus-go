@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/khelechy/argus/models"
-	"github.com/khelechy/argus/utils"
+	"github.com/khelechy/argus-go/models"
+	"github.com/khelechy/argus-go/utils"
 )
 
 type Argus struct {

@@ -3,7 +3,7 @@ package utils
 import (
 	"encoding/json"
 
-	"github.com/khelechy/argus/models"
+	"github.com/khelechy/argus-go/models"
 )
 
 
