@@ -26,6 +26,8 @@ Ensure you have golang +v1.19 installed.
     argus, err := argus.Connect(&argus.Argus{
 		Username: "testuser",
 		Password: "testpassword",
+        Host: "localhost",
+        Port: "1337"
 	})
 
 	if err != nil {
