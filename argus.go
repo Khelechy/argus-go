@@ -1,43 +1,41 @@
 package argus
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"time"
-	"encoding/json"
 )
-
 
 type Argus struct {
 	Username string
 	Password string
-	Host string
-	Port string
-	Events chan Event
+	Host     string
+	Port     string
+	Events   chan Event
 	Messages chan string
-	Errors chan error
+	Errors   chan error
 }
 
 type Event struct {
-	Action string
+	Action            string
 	ActionDescription string
-	Name string
-	Timestamp time.Time
+	Name              string
+	Timestamp         time.Time
 }
 
-
-func Connect(argusConfig *Argus) ( *Argus, error){
+func Connect(argusConfig *Argus) (*Argus, error) {
 
 	argus := &Argus{}
 
 	connectionString := fmt.Sprintf("<ArgusAuth>%s:%s</ArgusAuth>", argusConfig.Username, argusConfig.Password)
 
 	//Resolve host and port
-	if len(argusConfig.Host) == 0{
-       argusConfig.Host = "localhost"
+	if len(argusConfig.Host) == 0 {
+		argusConfig.Host = "localhost"
 	}
 
-	if len(argusConfig.Port) == 0{
+	if len(argusConfig.Port) == 0 {
 		argusConfig.Port = "1337"
 	}
 
@@ -49,16 +47,16 @@ func Connect(argusConfig *Argus) ( *Argus, error){
 	}
 
 	sendAuthData(conn, connectionString)
-	
+
 	argus.Events = make(chan Event)
 	argus.Errors = make(chan error)
 	argus.Messages = make(chan string)
 
-	go func(conn net.Conn){
+	go func(conn net.Conn) {
 
 		defer conn.Close()
-		
-	   // Create a buffer to read data into
+
+		// Create a buffer to read data into
 		buffer := make([]byte, 1024)
 
 		for {
@@ -70,17 +68,19 @@ func Connect(argusConfig *Argus) ( *Argus, error){
 
 			data := string(buffer[:n])
 
-			isJson, event, str := isJsonString(data)
+			if len(data) > 0 {
 
-			if isJson {
-				// Push event to event channel
-				argus.Events <- event
-			}else{
+				isJson, event, str := isJsonString(data)
 
-			   argus.Messages <- fmt.Sprintf("Received: %s\n", str)
+				if isJson {
+					// Push event to event channel
+					argus.Events <- event
+				} else {
+
+					argus.Messages <- fmt.Sprintf("Received: %s\n", str)
+				}
 			}
 
-			
 		}
 	}(conn)
 
@@ -94,7 +94,7 @@ func sendAuthData(conn net.Conn, connectionString string) {
 
 func isJsonString(str string) (bool, Event, string) {
 	var event Event
-	if json.Unmarshal([]byte(str), &event) == nil{
+	if json.Unmarshal([]byte(str), &event) == nil {
 		return true, event, str
 	}
 
